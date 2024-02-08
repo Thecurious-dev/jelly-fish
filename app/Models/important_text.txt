@@ -1,0 +1,14 @@
+
+// admin Controllers
+ php artisan admin:make UserController --model='App\Models\User'
+
+// model
+ php artisan make:model Course 
+
+//table
+php artisan make:migration create_courses_table
+
+
+// Api Controller
+
+ php artisan make:controller Api/CourseController

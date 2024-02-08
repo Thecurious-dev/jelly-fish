@@ -1,5 +1,6 @@
 <?php
 
+use App\Admin\Controllers\CompanyController;
 use Illuminate\Routing\Router;
 
 Admin::routes();
@@ -12,5 +13,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index')->name('home');
+
+    $router->resource('companies', CompanyController::class);
 
 });

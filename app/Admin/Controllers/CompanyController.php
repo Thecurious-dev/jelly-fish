@@ -15,7 +15,7 @@ class CompanyController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Company';
+    protected $title = 'Companies';
 
     /**
      * Make a grid builder.
@@ -89,6 +89,9 @@ class CompanyController extends AdminController
      */
     protected function form()
     {
+            //get admin_rol
+
+        die("test");
         $form = new Form(new Company());
 
         $form->number('owner_id', __('Owner id'));
