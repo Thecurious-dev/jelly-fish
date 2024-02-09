@@ -3,11 +3,14 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Company;
+use App\Models\User;
+use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
-
+use Illuminate\Support\Facades\DB;
+ 
 class CompanyController extends AdminController
 {
     /**
@@ -26,25 +29,43 @@ class CompanyController extends AdminController
     {
         $grid = new Grid(new Company());
 
-        $grid->column('id', __('Id'));
-        $grid->column('owner_id', __('Owner id'));
-        $grid->column('name', __('Name'));
+        $grid -> disableBatchActions();
+        
+        $grid -> quickSearch('name', 'email');
+        $grid->column('id', __('Id'))->hide();
+        $grid->column('owner_id', __('Owner '))->display(function($owner_id){
+            $user = User::find($owner_id);
+            if($user == null){
+                return 'Not found';
+            }
+            return $user->name;
+        })->sortable();
+        
+        $grid->column('name', __('Company name'))->sortable();
         $grid->column('email', __('Email'));
-        $grid->column('logo', __('Logo'));
-        $grid->column('website', __('Website'));
-        $grid->column('about', __('About'));
-        $grid->column('status', __('Status'));
-        $grid->column('address', __('Address'));
-        $grid->column('license_expire', __('License expire'));
-        $grid->column('phone_number', __('Phone number'));
-        $grid->column('phone_number_2', __('Phone number 2'));
-        $grid->column('pobox', __('Pobox'));
-        $grid->column('color', __('Color'));
-        $grid->column('slogan', __('Slogan'));
-        $grid->column('facebook', __('Facebook'));
-        $grid->column('twitter', __('Twitter'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('website', __('Website'))->hide();
+        $grid->column('about', __('About'))->hide();
+        $grid->column('status', __('Status'))->display(function($status){
+            return $status == 'active' ? 'Active' : 'Inactive';
+            })->sortable();
+        $grid->column('address', __('Address'))->hide();
+        $grid->column('license_expire', __('License expire'))
+        -> display(
+            function($licence_expire){
+                return date('Y-m-d', strtotime($licence_expire));
+            }
+        );
+        $grid->column('phone_number', __('Phone number'))->hide();
+        $grid->column('phone_number_2', __('Phone number 2'))-> hide();
+        $grid->column('pobox', __('Pobox'))-> hide();
+        $grid->column('color', __('Color'))-> hide();
+        $grid->column('slogan', __('Slogan'))-> hide();
+        $grid->column('facebook', __('Facebook'))-> hide();
+        $grid->column('twitter', __('Twitter'))-> hide();
+        $grid->column('created_at', __('Registered'))
+        ->display (function($created_at){
+            return date('Y-m-d', strtotime($created_at));
+        })->sortable();
 
         return $grid;
     }
@@ -89,27 +110,43 @@ class CompanyController extends AdminController
      */
     protected function form()
     {
-            //get admin_rol
+            //get admin_role users records with where condition
 
-        die("test");
+            $admin_role_users =DB::table('admin_role_users')->where([
+                'role_id' => 2
+            ])->get();
+
+            $company_admins = [];
+            foreach($admin_role_users as $key => $values){
+                $user = User::find ($values -> user_id);
+                if($user == null){
+                    continue;
+                }
+                $company_admins[$user -> id] = $user -> name;
+            };
+              
+           // dd( $company_admins);
+
+
+    
         $form = new Form(new Company());
 
-        $form->number('owner_id', __('Owner id'));
-        $form->textarea('name', __('Name'));
-        $form->textarea('email', __('Email'));
-        $form->textarea('logo', __('Logo'));
-        $form->textarea('website', __('Website'));
+        $form->select('owner_id', __('Owner '))->options($company_admins)->rules('required');
+        $form->text('name', __('Company Name'))->rules('required');
+        $form->email('email', __('Email'));
+        $form->image('logo', __('Logo'));
+        $form->url('website', __('Website'));
         $form->textarea('about', __('About'));
         $form->text('status', __('Status'));
-        $form->textarea('address', __('Address'));
+        $form->text('address', __('Address'));
         $form->date('license_expire', __('License expire'))->default(date('Y-m-d'));
-        $form->textarea('phone_number', __('Phone number'));
-        $form->textarea('phone_number_2', __('Phone number 2'));
-        $form->textarea('pobox', __('Pobox'));
-        $form->textarea('color', __('Color'));
-        $form->textarea('slogan', __('Slogan'));
-        $form->textarea('facebook', __('Facebook'));
-        $form->textarea('twitter', __('Twitter'));
+        $form->text('phone_number', __('Phone number'));
+        $form->text('phone_number_2', __('Phone number 2'));
+        $form->text('pobox', __('Pobox'));
+        $form->color('color', __('Color'));
+        $form->text('slogan', __('Slogan'));
+        $form->url('facebook', __('Facebook'));
+        $form->url('twitter', __('Twitter'));
 
         return $form;
     }

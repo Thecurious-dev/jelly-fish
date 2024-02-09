@@ -1,6 +1,8 @@
 <?php
 
 use App\Admin\Controllers\CompanyController;
+use App\Admin\Controllers\StockCategoryController;
+use App\Admin\Controllers\StockSubCategoryController;
 use Illuminate\Routing\Router;
 
 Admin::routes();
@@ -15,5 +17,8 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('home');
 
     $router->resource('companies', CompanyController::class);
+     
+    $router->resource('stock-categories', StockCategoryController::class);
 
+    $router->resource('stock-sub-categories', StockSubCategoryController::class);
 });
