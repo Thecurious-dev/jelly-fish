@@ -38,9 +38,9 @@ class StockCategoryController extends AdminController
         $grid->column('name', __('Category Name'))->sortable();
         $grid->column('description', __('Description'))->hide();
         $grid->column('status', __('Status'))->display(function($status){
-            return $status == 'active' ? 'Active' : 'Inactive';
-            })->sortable();;
-        $grid->picture('image', __('Image'));
+            return $status == 'actives' ? 'Active' : 'Inactive';
+            })->sortable();
+        $grid->column('image', __('Image'))->lightbox(['width' => 50, 'height' => 50]);
         $grid->column('buying_price', __('Investment '))
             ->display(function($buying_price){
                 return number_format($buying_price);
@@ -102,9 +102,6 @@ class StockCategoryController extends AdminController
         $form = new Form(new StockCategory());
 
         $u = Admin::user();
-
-        
-
         $form->hidden('company_id', __('Company id'))->default($u->company_id);
         $form->text('name', __('Category name'))
             ->rules('required|min:3|max:255');

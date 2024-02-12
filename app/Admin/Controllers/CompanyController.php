@@ -32,6 +32,7 @@ class CompanyController extends AdminController
         $grid -> disableBatchActions();
         
         $grid -> quickSearch('name', 'email');
+        
         $grid->column('id', __('Id'))->hide();
         $grid->column('owner_id', __('Owner '))->display(function($owner_id){
             $user = User::find($owner_id);
@@ -47,14 +48,13 @@ class CompanyController extends AdminController
         $grid->column('about', __('About'))->hide();
         $grid->column('status', __('Status'))->display(function($status){
             return $status == 'active' ? 'Active' : 'Inactive';
-            })->sortable();
+                })->sortable();
         $grid->column('address', __('Address'))->hide();
         $grid->column('license_expire', __('License expire'))
-        -> display(
-            function($licence_expire){
-                return date('Y-m-d', strtotime($licence_expire));
-            }
-        );
+               -> display(
+                function($licence_expire){
+                    return date('Y-m-d', strtotime($licence_expire));
+                });
         $grid->column('phone_number', __('Phone number'))->hide();
         $grid->column('phone_number_2', __('Phone number 2'))-> hide();
         $grid->column('pobox', __('Pobox'))-> hide();
@@ -63,9 +63,9 @@ class CompanyController extends AdminController
         $grid->column('facebook', __('Facebook'))-> hide();
         $grid->column('twitter', __('Twitter'))-> hide();
         $grid->column('created_at', __('Registered'))
-        ->display (function($created_at){
-            return date('Y-m-d', strtotime($created_at));
-        })->sortable();
+            ->display (function($created_at){
+                return date('Y-m-d', strtotime($created_at));
+            })->sortable();
 
         return $grid;
     }
