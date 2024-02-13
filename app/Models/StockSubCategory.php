@@ -9,6 +9,11 @@ class StockSubCategory extends Model
 {
     use HasFactory;
 
+
+
+ 
+
+
     public function stockCategory(){
         return $this->belongsTo(StockCategory::class);
     }

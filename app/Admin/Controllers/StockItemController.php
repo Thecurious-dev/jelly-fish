@@ -2,7 +2,10 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\StockCategory;
 use App\Models\StockItem;
+use App\Models\StockSubCategory;
+use App\Models\Utils;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -25,6 +28,14 @@ class StockItemController extends AdminController
      */
     protected function grid()
     {
+         $item = StockItem::find(11);
+         
+        $stock_category = StockCategory::find($item->stock_category_id);
+        $stock_category->update_self();
+        // dd($item);
+          $item->save();
+        // StockItem::prepare($item);
+      
         $grid = new Grid(new StockItem());
 
         $grid->column('id', __('Id'));
@@ -92,35 +103,71 @@ class StockItemController extends AdminController
      */
     protected function form()
     {
-        $form = new Form(new StockItem());
+        
+        $u = Admin::user();
 
-        $u= Admin::user();
-
-        $form->hidden('company_id', __('Company Id'))->default($u->company_id);
-
-        if($form->isCreating){
-             $form->hidden('created_by_id', __('created id'))->default($u->id);
+        $financial_period = Utils::getActiveFinancialPeriod($u->company_id);
+        
+        if($financial_period == null){
+            return admin_error('Please create a financial period first.');
         }
 
-        $sub_cat_ajax_url = url('api/stock-sub-categories');
-        $sub_cat_ajax_url = $sub_cat_ajax_url. '?company_id='.$u->company_id;
+        $form = new Form(new StockItem());
 
+        $form->hidden('company_id', __('Company id'))->default($u->company_id); //Logged in Company ID
+        $form->hidden('created_by_id', __('Created by Id'))->default($u->id); //ID for the user creating the item
+
+        $sub_category_ajax_url = url('api/stock-sub-categories');
+        $sub_category_ajax_url = $sub_category_ajax_url. '?company_id=' . $u->company_id;
         $form->select('stock_sub_category_id', __('Stock Category'))
-            ->ajax($sub_cat_ajax_url)->required();
+            ->ajax($sub_category_ajax_url)
+            ->options(function ($id){
+                $sub_category = StockSubCategory::find($id);
+                if($sub_category){
+                    return [$sub_category->id => $sub_category->name_text . " (" . $sub_category->measurement_unit . ")"];
+                }else{
+                    return [];
+                }
+            })
+            ->rules('required'); //Loading many items for selection
+        // $form->number('stock_sub_category_id', __('Stock sub category id'));
+        $form->text('name', __('Name'))->rules('required');
+        $form->image('image', __('Image'))
+            ->uniqueName();
+        //$form->textarea('barcode', __('Barcode'));
 
-        $form->number('financial_period_id', __('Financial period id'));
-        $form->textarea('name', __('Name'));
+        if($form->isEditing()){
+            $form->select('update_sku', __('Update SKU'))
+            ->options([
+                'Yes' => 'Yes',
+                'No' => 'No'
+            ])->when('Yes', function (Form $form){
+                $form->text('generate_sku', __('Enter SKU (Batch Number)'))->rules('required');
+            })->rules('required');
+        }else{
+            $form->hidden('update_sku', __('Update SKU'))->default('No');
+            $form->radio('generate_sku', __('Generate SKU(Batch Number)'))
+            ->options([
+                'Manual' => 'Manual',
+                'Auto' => 'Auto'
+            ])->when('Manual', function (Form $form){
+                $form->text('generate_sku', __('Enter SKU (Batch Number)'))->rules('required');
+            })->rules('required');
+        } 
+        $form->multipleImage('gallery', __('Gallery'))
+            ->removable()
+            ->downloadable()
+            ->uniqueName();
+        $form->decimal('buying_price', __('Buying Price'))
+            ->default(0.00)
+            ->rules('required');
+        $form->decimal('selling_price', __('Selling Price'))
+            ->default(0.00)
+            ->rules('required');
+        $form->decimal('original_quantity', __('Original Quantity'))
+            ->default(0.00)
+            ->rules('required');
         $form->textarea('description', __('Description'));
-        $form->textarea('image', __('Image'));
-        $form->textarea('barcode', __('Barcode'));
-        $form->textarea('sku', __('Sku'));
-        $form->text('generate_sku', __('Generate sku'));
-        $form->text('update_sku', __('Update sku'));
-        $form->text('gallery', __('Gallery'));
-        $form->number('buying_price', __('Buying price'));
-        $form->number('selling_price', __('Selling price'));
-        $form->number('original_quantity', __('Original quantity'));
-        $form->number('current_quantity', __('Current quantity'));
 
         return $form;
     }
