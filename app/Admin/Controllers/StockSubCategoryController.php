@@ -51,10 +51,22 @@ class StockSubCategoryController extends AdminController
 
         $grid->column('name', __(' Name '))->sortable();
        
-        $grid->column('buying_price', __('Investment'))->sortable();
-        $grid->column('selling_price', __('Expected Sales'))->sortable();
-        $grid->column('expected_profit', __('Expected Profit'))->sortable();
-        $grid->column('earned_profit', __('Earned Profit'))->sortable();
+        $grid->column('buying_price', __('Investment'))
+            ->display(function($buying_price){
+                return number_format($buying_price);
+                })->sortable();
+        $grid->column('selling_price', __('Expected Sales'))
+            ->display(function($selling_price){
+                return number_format($selling_price);
+                })->sortable();
+        $grid->column('expected_profit', __('Expected Profit'))
+            ->display(function($expected_profit){
+                return number_format($expected_profit);
+                })->sortable();
+        $grid->column('earned_profit', __('Earned Profit'))  
+           ->display(function($earned_profit){
+            return number_format($earned_profit);
+            })->sortable();
 
          $grid->column('current_quantity', __('Current quantity'))
             ->display(function ($current_quantity){
@@ -73,10 +85,21 @@ class StockSubCategoryController extends AdminController
             ->label([
                 'Active'=> 'success',
                 'Inactive'=> 'danger'
-            ])->sortable();
+            ])->sortable()->filter([
+                'Active'=>'Active',
+                'Inactive' =>'Inactive'
+              ]);
         $grid->column('description', __('Description'))->hide();
 
-        
+        $grid->column('in_stock', __('In Stock'))
+        ->dot([
+            'Yes'=> 'success',
+            'No'=> 'danger'
+        ])->sortable()
+          ->filter([
+            'Yes'=>'In Stock',
+            'No' =>'Out of stock'
+          ]);
 
         return $grid;
     }

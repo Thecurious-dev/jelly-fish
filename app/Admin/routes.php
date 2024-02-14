@@ -5,6 +5,7 @@ use App\Admin\Controllers\EmployeesController;
 use App\Admin\Controllers\FinancialPeriodController;
 use App\Admin\Controllers\StockCategoryController;
 use App\Admin\Controllers\StockItemController;
+use App\Admin\Controllers\StockRecordController;
 use App\Admin\Controllers\StockSubCategoryController;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Routing\Router;
@@ -32,5 +33,9 @@ Route::group([
     $router->resource('employees', EmployeesController::class);
 
     $router->resource('stock-items', StockItemController::class);
+
+
+    $router->resource('stock-records', StockRecordController::class);
+
 
 });

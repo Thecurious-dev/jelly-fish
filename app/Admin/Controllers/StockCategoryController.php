@@ -26,7 +26,7 @@ class StockCategoryController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new StockCategory());
-
+        
 
         $u = Admin::user();
         $grid->model()->where('company_id', $u->company_id);
@@ -38,7 +38,7 @@ class StockCategoryController extends AdminController
         $grid->column('name', __('Category Name'))->sortable();
         $grid->column('description', __('Description'))->hide();
         $grid->column('status', __('Status'))->display(function($status){
-            return $status == 'actives' ? 'Active' : 'Inactive';
+            return $status == 'Active' ? 'Active' : 'Inactive';
             })->sortable();
         $grid->column('image', __('Image'))->lightbox(['width' => 50, 'height' => 50]);
         $grid->column('buying_price', __('Investment '))

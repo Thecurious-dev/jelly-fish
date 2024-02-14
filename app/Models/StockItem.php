@@ -28,8 +28,37 @@ class StockItem extends Model
             
         });
 
-    
+        
+        static::created(function($model){
+         
+         $stock_category = StockCategory::find($model->stock_category_id);
+         $stock_category->update_self();
 
+         $stock_category = StockSubCategory::find($model->stock_sub_category_id);
+         $stock_category->update_self();
+        
+        });
+
+        static::updated(function($model){
+         
+            $stock_category = StockCategory::find($model->stock_category_id);
+            $stock_category->update_self();
+
+            $stock_category = StockSubCategory::find($model->stock_sub_category_id);
+            $stock_category->update_self();
+            
+           
+           });
+        
+           static::deleted(function($model){
+         
+            $stock_category = StockCategory::find($model->stock_category_id);
+            $stock_category->update_self();
+
+            $stock_category = StockSubCategory::find($model->stock_sub_category_id);
+            $stock_category->update_self();
+           
+           });
     }
 
     static public function prepare($model){
@@ -88,6 +117,23 @@ class StockItem extends Model
         $this->attributes['gallery'] = json_encode($value, true);
         
       
+    }
+    public function stockSubCategory(){
+        return $this->belongsTo(StockSubCategory::class);
+    }
+    protected $appends = ['name_text'];
+
+    //getter for name_text
+
+    public function getNameTextAttribute(){
+
+            $name_text = $this->name;
+
+        if($this->stockSubCategory != null){
+            $name_text = $name_text. "-" . $this->stockSubCategory->name;
+        }
+        $name_text = $name_text . " (" .number_format($this->current_quantity) . " ". $this->stockSubCategory->measurement_unit .")";
+        return $name_text;
     }
     use HasFactory;
 

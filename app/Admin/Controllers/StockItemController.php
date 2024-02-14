@@ -28,13 +28,11 @@ class StockItemController extends AdminController
      */
     protected function grid()
     {
-         $item = StockItem::find(11);
+        //   $item = StockItem::find(5);
          
-        $stock_category = StockCategory::find($item->stock_category_id);
-        $stock_category->update_self();
-        // dd($item);
-          $item->save();
-        // StockItem::prepare($item);
+        //  $stock_sub_category = StockSubCategory::find($item->stock_sub_category_id);
+        //  $stock_sub_category->update_self();
+       
       
         $grid = new Grid(new StockItem());
 
@@ -46,7 +44,7 @@ class StockItemController extends AdminController
         $grid->column('financial_period_id', __('Financial period id'));
         $grid->column('name', __('Name'));
         $grid->column('description', __('Description'));
-        $grid->column('image', __('Image'));
+        $grid->column('image', __('Image'))->lightbox(['width' => 80, 'height' => 80]);
         $grid->column('barcode', __('Barcode'));
         $grid->column('sku', __('Sku'));
         $grid->column('generate_sku', __('Generate sku'));
@@ -116,7 +114,7 @@ class StockItemController extends AdminController
 
         $form->hidden('company_id', __('Company id'))->default($u->company_id); //Logged in Company ID
         $form->hidden('created_by_id', __('Created by Id'))->default($u->id); //ID for the user creating the item
-
+        //Loading many items for selection
         $sub_category_ajax_url = url('api/stock-sub-categories');
         $sub_category_ajax_url = $sub_category_ajax_url. '?company_id=' . $u->company_id;
         $form->select('stock_sub_category_id', __('Stock Category'))
@@ -129,7 +127,7 @@ class StockItemController extends AdminController
                     return [];
                 }
             })
-            ->rules('required'); //Loading many items for selection
+            ->rules('required'); 
         // $form->number('stock_sub_category_id', __('Stock sub category id'));
         $form->text('name', __('Name'))->rules('required');
         $form->image('image', __('Image'))
